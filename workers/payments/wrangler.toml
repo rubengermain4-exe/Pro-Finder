@@ -1,0 +1,6 @@
+name = "pro-finder-payments"
+main = "index.js"
+compatibility_date = "2024-11-01"
+
+# Secrets à définir avec : npx wrangler secret put NOM --config workers/payments/wrangler.toml
+#   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, WEBHOOK_SECRET_AIRTEL, WEBHOOK_SECRET_MOOV

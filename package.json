@@ -1,0 +1,25 @@
+{
+  "name": "pro-finder",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pro Finder - L'annuaire professionnel du Gabon",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node --test",
+    "check": "node scripts/check.mjs",
+    "verify": "npm run check && npm test && npm run build",
+    "deploy:pages": "wrangler pages deploy dist --project-name pro-finder",
+    "deploy:worker": "wrangler deploy --config workers/payments/wrangler.toml"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0",
+    "wrangler": "^3.80.0"
+  },
+  "engines": { "node": ">=20" }
+}
