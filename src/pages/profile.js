@@ -10,6 +10,24 @@ import { DAYS, validateReview } from '../lib/validators.js';
 import { on, formValues, showFieldErrors, withBusy } from '../lib/dom.js';
 import { toastSuccess, toastError, friendlyError } from '../lib/toast.js';
 import { config } from '../config.js';
+import { publicUrl } from '../lib/supabase.js';
+import { openStatus } from '../lib/availability.js';
+import { addRecent } from '../lib/recent.js';
+import { setSeo, setJsonLd } from '../lib/seo.js';
+
+/** Données structurées schema.org pour les moteurs de recherche. */
+function localBusinessLd(b, extras, place, logoUrl, hasHours, av) {
+  const dayNames = { mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday', fri: 'Friday', sat: 'Saturday', sun: 'Sunday' };
+  const data = {
+    '@context': 'https://schema.org', '@type': 'LocalBusiness', name: b.name, url: window.location.href,
+    description: b.tagline || b.description || undefined, image: logoUrl || undefined,
+    telephone: b.phone || b.whatsapp || undefined, email: b.email || undefined,
+    address: { '@type': 'PostalAddress', streetAddress: b.address || undefined, addressLocality: place || undefined, addressCountry: 'GA' },
+  };
+  if (extras.stats.review_count > 0) data.aggregateRating = { '@type': 'AggregateRating', ratingValue: Number(extras.stats.avg_rating).toFixed(1), reviewCount: extras.stats.review_count };
+  if (hasHours) data.openingHoursSpecification = Object.entries(dayNames).filter(([k]) => av[k]?.open).map(([k, d]) => ({ '@type': 'OpeningHoursSpecification', dayOfWeek: d, opens: av[k].from, closes: av[k].to }));
+  return data;
+}
 
 const REASONS = [
   { value: 'fraude', label: 'Arnaque ou fraude' }, { value: 'usurpation', label: "Usurpation d'identité" },
@@ -44,6 +62,17 @@ export async function render({ root, params, navigate }) {
   const place = [b.location?.name, b.location?.parent?.name].filter(Boolean).join(', ');
   const av = b.availability || {};
   const hasHours = DAYS.some(([k]) => av[k]);
+  const status = hasHours ? openStatus(av) : null;
+  const logoUrl = b.logo_path ? publicUrl('business-media', b.logo_path) : '';
+  if (isPublic) {
+    setSeo({
+      title: `${b.name}${b.category ? ` · ${b.category.name}` : ''}${place ? ` à ${place}` : ''} · Pro Finder`,
+      description: b.tagline || b.description || `${b.name} sur Pro Finder, l'annuaire des professionnels du Gabon.`,
+      image: logoUrl, type: 'profile',
+    });
+    setJsonLd(localBusinessLd(b, extras, place, logoUrl, hasHours, av));
+    if (!isOwner) addRecent({ slug: b.slug, kind: b.kind, name: b.name, tagline: b.tagline || '', category_name: b.category?.name || '', location_name: place, logo_path: b.logo_path || '' });
+  }
 
   const contactButtons = (cls = '') => isOwner ? '' : html`
     ${wa ? html`<a class="btn btn--whatsapp ${cls}" href="${wa}" target="_blank" rel="noopener noreferrer" data-track="whatsapp">${icon('whatsapp', 20)} WhatsApp</a>` : ''}
@@ -63,9 +92,13 @@ export async function render({ root, params, navigate }) {
               ${place ? html`<span>${icon('pin', 16)} ${place}</span>` : ''}
               ${extras.stats.review_count > 0 ? html`<span>${stars(extras.stats.avg_rating, 15)} ${Number(extras.stats.avg_rating).toFixed(1)} (${extras.stats.review_count} avis)</span>` : html`<span>Pas encore d'avis</span>`}
               ${b.kind === 'entreprise' ? html`<span>${icon('home', 16)} Entreprise</span>` : ''}
+              ${status ? html`<span class="open-badge open-badge--${status.state}">${status.label}</span>` : ''}
             </div>
           </div>
-          ${isOwner ? '' : html`<div class="row"><button class="btn btn--light btn--sm" id="fav" type="button" aria-pressed="${fav}">${icon('heart', 18, { filled: fav })} <span>${fav ? 'Favori' : 'Ajouter aux favoris'}</span></button></div>`}
+          <div class="row">
+            <button class="btn btn--light btn--sm" id="share" type="button">${icon('share', 18)} <span>Partager</span></button>
+            ${isOwner ? '' : html`<button class="btn btn--light btn--sm" id="fav" type="button" aria-pressed="${fav}">${icon('heart', 18, { filled: fav })} <span>${fav ? 'Favori' : 'Ajouter aux favoris'}</span></button>`}
+          </div>
         </div>
       </section>
       <div class="container section--tight">
@@ -116,6 +149,18 @@ export async function render({ root, params, navigate }) {
   }));
 
   const requireLogin = () => { if (auth.user) return true; navigate(`/connexion?next=${encodeURIComponent(window.location.pathname)}`); return false; };
+  const shareBtn = root.querySelector('#share');
+  if (shareBtn) shareBtn.addEventListener('click', async () => {
+    const data = { title: b.name, text: b.tagline || `${b.name} sur Pro Finder`, url: window.location.href.split('#')[0] };
+    try {
+      if (navigator.share) { await navigator.share(data); return; }
+      await navigator.clipboard.writeText(data.url);
+      toastSuccess('Lien copié dans le presse-papiers.');
+    } catch (err) {
+      if (err?.name !== 'AbortError') toastError('Impossible de partager. Copiez le lien depuis la barre d\'adresse.');
+    }
+  });
+
   const favBtn = root.querySelector('#fav');
   if (favBtn) favBtn.addEventListener('click', async () => {
     if (!requireLogin()) return;

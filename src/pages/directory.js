@@ -2,6 +2,7 @@ import { html, setHtml, raw } from '../lib/html.js';
 import { icon } from '../components/icons.js';
 import { businessGrid } from '../components/businessCard.js';
 import { emptyState, options, pagination, mountLocationPicker } from '../components/ui.js';
+import { locationChain } from '../services/catalog.js';
 import { getCategories, getLocations, searchBusinesses, getAds } from '../services/catalog.js';
 import { buildQuery } from '../lib/router.js';
 import { debounce, on } from '../lib/dom.js';
@@ -13,7 +14,7 @@ const SORTS = [
   { value: 'rating', label: 'Les mieux notés' }, { value: 'recent', label: 'Les plus récents' },
 ];
 
-export async function render({ root, query }) {
+export async function render({ root, query, navigate }) {
   const [cats, locs, ads] = await Promise.all([getCategories(), getLocations(), getAds('directory_top').catch(() => [])]);
   const tops = cats.filter((c) => !c.parent_id);
   const parentOf = (id) => cats.find((c) => c.id === id)?.parent_id || null;
@@ -46,7 +47,7 @@ export async function render({ root, query }) {
             <div class="row"><button class="btn btn--block" type="submit">Rechercher</button><button class="btn btn--ghost btn--block" type="button" id="f-reset">Réinitialiser</button></div>
           </form>
         </aside>
-        <section aria-live="polite" aria-label="Résultats"><div id="results"></div></section>
+        <section aria-label="Résultats"><div id="active-filters" class="active-filters"></div><div id="results" aria-live="polite"></div></section>
       </div>
     </div>`);
 
@@ -59,9 +60,21 @@ export async function render({ root, query }) {
     onChange: (id) => { st.loc = id; st.page = 1; load(); },
   });
 
+  const SORT_LABEL = Object.fromEntries(SORTS.map((o) => [o.value, o.label]));
+  function drawActive() {
+    const items = [];
+    if (st.q) items.push(['q', `« ${st.q} »`]);
+    if (st.cat) items.push(['cat', cats.find((c) => c.id === st.cat)?.name || 'Catégorie']);
+    if (st.loc) items.push(['loc', locationChain(locs, st.loc).map((l) => l.name).reverse().join(', ') || 'Localité']);
+    if (st.kind) items.push(['kind', st.kind === 'entreprise' ? 'Entreprises' : 'Indépendants']);
+    if (st.sort && st.sort !== 'relevance') items.push(['sort', `Tri : ${SORT_LABEL[st.sort] || st.sort}`]);
+    setHtml(root.querySelector('#active-filters'), items.length ? html`${items.map(([k, label]) => html`<button type="button" class="filter-chip" data-clear="${k}" aria-label="Retirer le filtre : ${label}">${label} ${icon('x', 14)}</button>`)}<button type="button" class="link-btn small" data-clear="all">Tout effacer</button>` : '');
+  }
+
   async function load() {
     const my = ++token;
     st.cat = catChild || catParent || '';
+    drawActive();
     window.history.replaceState({}, '', `/annuaire${buildQuery({ q: st.q, cat: st.cat, loc: st.loc, kind: st.kind, sort: st.sort === 'relevance' ? '' : st.sort, page: st.page > 1 ? st.page : '' })}`);
     setHtml(results, html`<div class="biz-grid">${[1, 2, 3, 4, 5, 6].map(() => html`<div class="skeleton"></div>`)}</div>`);
     try {
@@ -92,7 +105,7 @@ export async function render({ root, query }) {
   const reset = () => {
     Object.assign(st, { q: '', cat: '', loc: '', kind: '', sort: 'relevance', page: 1 });
     catParent = ''; catChild = '';
-    window.location.assign('/annuaire');
+    navigate('/annuaire');
   };
   root.querySelector('#f-reset').addEventListener('click', reset);
   root.querySelector('#f-toggle').addEventListener('click', (e) => {
@@ -104,7 +117,14 @@ export async function render({ root, query }) {
   });
   const off1 = on(results, 'click', '[data-page]', (e, el) => { st.page = Number(el.dataset.page); load(); document.querySelector('.filters')?.scrollIntoView({ behavior: 'smooth' }); });
   const off2 = on(results, 'click', '[data-action="reset"]', reset);
+  const off3 = on(root.querySelector('#active-filters'), 'click', '[data-clear]', (e, el) => {
+    const k = el.dataset.clear;
+    if (k === 'all') { reset(); return; }
+    const next = { q: st.q, cat: st.cat, loc: st.loc, kind: st.kind, sort: st.sort === 'relevance' ? '' : st.sort };
+    next[k] = '';
+    navigate(`/annuaire${buildQuery(next)}`);
+  });
   load();
   void picker;
-  return () => { off1(); off2(); token += 1; };
+  return () => { off1(); off2(); off3(); token += 1; };
 }

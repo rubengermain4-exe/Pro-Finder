@@ -21,7 +21,7 @@ const DOCS = {
     <h2>Données collectées</h2><p>Nom, e-mail, téléphone (facultatif), informations de fiche pour les professionnels, messages échangés, avis, favoris et statistiques de consultation.</p>
     <h2>Utilisation</h2><p>Ces données servent à faire fonctionner l'annuaire, la messagerie, les abonnements et la modération. Elles ne sont pas vendues.</p>
     <h2>Messagerie</h2><p>Les conversations ne sont visibles que par leurs deux participants.</p>
-    <h2>Cookies et stockage local</h2><p>Le site utilise uniquement le stockage nécessaire à votre session de connexion. Aucun traceur publicitaire n'est installé.</p>
+    <h2>Cookies et stockage local</h2><p>Le site utilise uniquement le stockage nécessaire à votre session de connexion. Aucun traceur publicitaire n'est installé. La liste des fiches récemment consultées est conservée uniquement sur votre appareil (stockage local) ; vous pouvez l'effacer à tout moment depuis la page d'accueil.</p>
     <h2>Vos droits</h2><p>Vous pouvez demander l'accès, la correction ou la suppression de vos données via la page <a href="/contact">Contact</a>.</p>
     <h2>Sous-traitants</h2><p>Supabase (base de données, authentification, stockage) et Cloudflare (hébergement).</p>`],
 };

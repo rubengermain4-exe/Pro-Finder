@@ -8,6 +8,7 @@ import { unreadTotal, subscribeToInbox } from './services/messaging.js';
 import { unreadNotifications } from './services/account.js';
 import { toastError, friendlyError } from './lib/toast.js';
 import { scrollTop } from './lib/dom.js';
+import { resetSeo } from './lib/seo.js';
 
 let headerEl; let viewEl; let footerEl;
 let renderToken = 0;
@@ -36,6 +37,7 @@ export { refreshCounts };
 
 async function route() {
   const token = ++renderToken;
+  resetSeo();
   if (cleanup) { try { cleanup(); } catch { /* ignore */ } cleanup = null; }
 
   const url = new URL(window.location.href);
@@ -115,6 +117,13 @@ export function startApp(root) {
   viewEl = root.querySelector('#view');
   footerEl = root.querySelector('#site-footer');
   setHtml(footerEl, renderFooter());
+
+  const toTop = document.createElement('button');
+  toTop.type = 'button'; toTop.className = 'to-top'; toTop.hidden = true; toTop.setAttribute('aria-label', 'Remonter en haut de la page');
+  toTop.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+  toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  document.body.append(toTop);
+  window.addEventListener('scroll', () => { toTop.hidden = window.scrollY < 700; }, { passive: true });
 
   document.addEventListener('click', onGlobalClick);
   window.addEventListener('popstate', route);

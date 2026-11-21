@@ -111,3 +111,44 @@ test('image : détection par signature', async () => {
   assert.equal((await validateImageFile(new Blob([jpeg]))).ok, true);
   assert.equal((await validateImageFile(new Blob([new Uint8Array(3 * 1024 * 1024)]))).ok, false);
 });
+
+// ---------- v1.1 : statut ouvert/fermé, historique local, données structurées ----------
+import { openStatus } from '../src/lib/availability.js';
+import { getRecent, addRecent, clearRecent } from '../src/lib/recent.js';
+import { jsonLdString } from '../src/lib/seo.js';
+
+const memStore = () => { const m = new Map(); return { getItem: (k) => m.get(k) ?? null, setItem: (k, v) => m.set(k, v), removeItem: (k) => m.delete(k) }; };
+const week = { mon: { open: true, from: '08:00', to: '17:00' }, tue: { open: true, from: '08:00', to: '17:00' }, sat: { open: true, from: '09:00', to: '12:00' } };
+
+test('disponibilité : ouvert à l\'heure du Gabon (UTC+1) quel que soit le fuseau', () => {
+  // Lundi 2024-06-03 10:00 à Libreville = 09:00 UTC
+  assert.deepEqual(openStatus(week, new Date('2024-06-03T09:00:00Z')), { state: 'open', label: "Ouvert · jusqu'à 17:00" });
+  // 16:30 UTC = 17:30 à Libreville : fermé, rouvre demain (mardi)
+  assert.equal(openStatus(week, new Date('2024-06-03T16:30:00Z')).label, 'Fermé · ouvre demain à 08:00');
+});
+test('disponibilité : avant l\'ouverture, jour fermé, aucun horaire', () => {
+  assert.equal(openStatus(week, new Date('2024-06-03T06:00:00Z')).label, 'Fermé · ouvre à 08:00'); // 07:00 local
+  assert.equal(openStatus(week, new Date('2024-06-05T09:00:00Z')).label, 'Fermé · ouvre samedi à 09:00'); // mercredi
+  assert.equal(openStatus({}, new Date()), null);
+  assert.equal(openStatus(null, new Date()), null);
+});
+test('historique : ajoute en tête, dédoublonne, plafonne à 6, efface', () => {
+  const s = memStore();
+  for (let i = 0; i < 8; i += 1) addRecent({ slug: `p${i}`, name: `Pro ${i}`, kind: 'independant' }, s);
+  addRecent({ slug: 'p3', name: 'Pro 3' }, s);
+  const list = getRecent(s);
+  assert.equal(list.length, 6);
+  assert.equal(list[0].slug, 'p3');
+  assert.equal(list.filter((e) => e.slug === 'p3').length, 1);
+  clearRecent(s);
+  assert.deepEqual(getRecent(s), []);
+});
+test('historique : ignore les données corrompues et les champs inattendus', () => {
+  const s = memStore(); s.setItem('pf:recent', '{pas du json');
+  assert.deepEqual(getRecent(s), []);
+  addRecent({ slug: 'a', name: 'A', evil: '<script>' }, s);
+  assert.equal(getRecent(s)[0].evil, undefined);
+});
+test('JSON-LD : neutralise « < » pour empêcher la sortie du bloc script', () => {
+  assert.ok(!jsonLdString({ name: '</script><script>alert(1)' }).includes('<'));
+});

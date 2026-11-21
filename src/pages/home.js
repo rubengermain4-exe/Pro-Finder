@@ -6,6 +6,17 @@ import { getCategories, getLocations, getSettings, searchBusinesses, getAds } fr
 import { formatXAF } from '../lib/format.js';
 import { buildQuery } from '../lib/router.js';
 import { safeUrl } from '../lib/format.js';
+import { avatar } from '../components/businessCard.js';
+import { getRecent, clearRecent } from '../lib/recent.js';
+import { setJsonLd } from '../lib/seo.js';
+
+const FAQ = [
+  ['Est-ce gratuit pour les clients ?', "Oui. Chercher, comparer et contacter un professionnel est entièrement gratuit pour les particuliers et les entreprises qui recherchent un prestataire."],
+  ['Comment sont choisis les professionnels affichés ?', "Chaque fiche est validée par l'équipe avant sa publication. Les avis ne peuvent être déposés qu'après un échange réel entre le client et le professionnel."],
+  ['Comment contacter un professionnel ?', "Depuis sa fiche, par appel, WhatsApp ou messagerie privée. Vous échangez directement, sans intermédiaire ni commission."],
+  ['Puis-je signaler un problème ?', "Oui, chaque fiche comporte un bouton « Signaler cette fiche ». Notre équipe examine les signalements."],
+  ['Je suis professionnel : que dois-je faire ?', "Créez un compte professionnel, complétez votre fiche (prestations, photos, horaires), puis activez votre abonnement pour être visible."],
+];
 
 const safe = (p, fallback) => p.catch((e) => { console.error(e); return fallback; });
 
@@ -20,6 +31,14 @@ export async function render({ root, navigate }) {
   const provinces = locs.filter((l) => !l.parent_id);
   const catOptions = tops.map((t) => ({ top: t, kids: cats.filter((c) => c.parent_id === t.id) }));
   const ad = ads[0];
+  const seen = getRecent();
+  const recentBlock = seen.length ? html`
+    <section class="section section--tight" id="recent-block" aria-labelledby="seen-title">
+      <div class="container">
+        <div class="section__head"><h2 id="seen-title">Consultés récemment</h2><button type="button" class="link-btn small" id="clear-recent">Effacer l'historique</button></div>
+        <div class="recent-row">${seen.map((r) => html`<a class="recent-item" href="${r.kind === 'entreprise' ? '/entreprise' : '/pro'}/${r.slug}">${avatar(r.name, r.logo_path)}<span><strong>${r.name}</strong><small>${[r.category_name, r.location_name].filter(Boolean).join(' · ')}</small></span></a>`)}</div>
+      </div>
+    </section>` : '';
 
   setHtml(root, html`
     <section class="hero" aria-labelledby="hero-title">
@@ -51,6 +70,7 @@ export async function render({ root, navigate }) {
 
     ${ad ? html`<div class="container section--tight"><a class="ad-banner" href="${safeUrl(ad.link_url)}" target="_blank" rel="sponsored noopener noreferrer"><span class="badge badge--sponsor">Sponsorisé</span><img src="${ad.image_url}" alt="${ad.title}" loading="lazy" /></a></div>` : ''}
 
+    ${recentBlock}
     <section class="section" aria-labelledby="cat-title">
       <div class="container">
         <div class="section__head"><h2 id="cat-title">Que recherchez-vous ?</h2><a href="/annuaire">Voir tout l'annuaire</a></div>
@@ -98,6 +118,13 @@ export async function render({ root, navigate }) {
       </div>
     </section>
 
+    <section class="section section--tight" aria-labelledby="faq-title">
+      <div class="container container--narrow">
+        <h2 id="faq-title" style="margin-bottom:22px">Questions fréquentes</h2>
+        <div class="faq">${FAQ.map(([q, a]) => html`<details><summary>${q}</summary><p>${a}</p></details>`)}</div>
+      </div>
+    </section>
+
     <section class="section" id="abonnement" aria-labelledby="pro-title">
       <div class="container">
         <div class="cta-band">
@@ -115,6 +142,8 @@ export async function render({ root, navigate }) {
       </div>
     </section>`);
 
+  root.querySelector('#clear-recent')?.addEventListener('click', () => { clearRecent(); root.querySelector('#recent-block')?.remove(); });
+  setJsonLd({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: FAQ.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) });
   const form = root.querySelector('#hero-search');
   form.addEventListener('submit', (e) => {
     e.preventDefault();

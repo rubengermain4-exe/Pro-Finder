@@ -23,6 +23,7 @@ const P = {
   leaf: '<path d="M5 19C5 9 11 4 20 4c0 9-5 15-15 15z"/><path d="m5 19 8-8"/>',
   camera: '<path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13" r="4"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
+  share: '<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/>',
   menu: '<path d="M3 6h18M3 12h18M3 18h18"/>',
   x: '<path d="M6 6l12 12M18 6 6 18"/>',
   user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>',
