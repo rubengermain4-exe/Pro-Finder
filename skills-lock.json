@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "skills": {
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "commit": "57217cf86ba38148a57af9e90d14a4c049558330",
+      "sourceType": "github",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "computedHash": "7bc223e2aafbdbf6e50ea243ba6ef67fe432bb069ab439fea0390795dac0bf7f"
+    },
+    "task-observer": {
+      "source": "rebelytics/one-skill-to-rule-them-all",
+      "commit": "4d7bcd7f042f1cf2bef1ebf2aabdeefae8d740ae",
+      "sourceType": "github",
+      "skillPath": "skills/task-observer/SKILL.md",
+      "computedHash": "98ecb7ccbc57492153496708d056a9ad3da9d1875d97d75dec1a8e1c6c5b5db2"
+    }
+  }
+}
