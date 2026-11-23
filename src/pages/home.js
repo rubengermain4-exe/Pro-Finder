@@ -44,9 +44,9 @@ export async function render({ root, navigate }) {
     <section class="hero" aria-labelledby="hero-title">
       <div class="container hero__inner">
         <div class="hero__copy">
-          <div class="hero__badge"><span class="flag-icon">🇬🇦</span> Plateforme professionnelle du Gabon</div>
-          <h1 id="hero-title">Trouvez le bon professionnel, <br/><span class="text-gradient">en toute confiance.</span></h1>
-          <p class="lead">Pro Finder vous connecte aux meilleurs professionnels près de chez vous. Simple, rapide et sécurisé.</p>
+          <div class="hero__badge"><span class="hero__badge-dot"></span> L’annuaire des professionnels du Gabon</div>
+          <h1 id="hero-title">Le bon professionnel.<br/><span class="text-gradient">Au bon moment.</span></h1>
+          <p class="lead">Trouvez facilement des artisans, experts et entreprises de confiance près de chez vous, partout au Gabon.</p>
 
           <form class="search-card" id="hero-search" role="search" aria-label="Rechercher un professionnel">
             <div class="search-field">
@@ -68,12 +68,10 @@ export async function render({ root, navigate }) {
         </div>
 
         <div class="hero__art" aria-hidden="true">
-          <div class="hero__panther">
-            <img src="/assets/mascot.svg" alt="Panthère Pro Finder" width="480" height="520" />
-            <div class="hero__art-tagline">
-              <strong>Pro Finder</strong>
-              <span>Plus proche de vous au <strong>Gabon</strong></span>
-            </div>
+          <div class="hero__professional">
+            <div class="hero__visual-orbit"></div>
+            <img src="/assets/profinder-professional.png" alt="Professionnel partenaire de Pro Finder" width="1100" height="1350" fetchpriority="high" />
+            <div class="hero__floating-card"><span class="hero__floating-icon">✓</span><span><strong>Des pros près de vous</strong><small>Partout au Gabon</small></span></div>
           </div>
         </div>
       </div>
@@ -105,8 +103,8 @@ export async function render({ root, navigate }) {
           <div class="trust-item">
             <div class="trust-icon trust-icon--flag">${icon('shieldCheck', 22)}</div>
             <div>
-              <strong>100% Gabonais</strong>
-              <span>Soutien à notre communauté</span>
+              <strong>Partout au Gabon</strong>
+              <span>Un service de proximité</span>
             </div>
           </div>
         </div>

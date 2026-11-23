@@ -24,7 +24,7 @@ export function renderHeader({ auth, path, unread = 0, notifications = 0 }) {
     <header class="site-header">
       <div class="container site-header__bar">
         <a class="brand" href="/" aria-label="Pro Finder, accueil">
-          <img src="/assets/mascot.svg" alt="" width="40" height="40" style="object-fit:cover;object-position:50% 12%;background:var(--forest)" />
+          <img src="/assets/profinder-mark.svg" alt="" width="44" height="44" />
           <span><b>PRO</b> FINDER</span>
         </a>
         <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="main-nav" data-action="toggle-nav" aria-label="Ouvrir le menu">${icon('menu', 22)}</button>
@@ -58,7 +58,7 @@ export function renderFooter() {
     <footer class="site-footer">
       <div class="container footer__grid">
         <div>
-          <a class="brand" href="/" style="color:var(--ivory)"><img src="/assets/mascot.svg" alt="" width="40" height="40" style="object-fit:cover;object-position:50% 12%;background:var(--forest)" /><span style="color:var(--ivory)"><b style="color:var(--gold)">PRO</b> FINDER</span></a>
+          <a class="brand" href="/" style="color:var(--ivory)"><img src="/assets/profinder-mark.svg" alt="" width="44" height="44" /><span style="color:var(--ivory)"><b style="color:var(--gold)">PRO</b> FINDER</span></a>
           <p class="small" style="margin-top:14px">${config.slogan} L'annuaire des professionnels du Gabon : plombiers, frigoristes, électriciens, mécaniciens, nounous et bien d'autres.</p>
         </div>
         <div>
