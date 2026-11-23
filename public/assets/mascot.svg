@@ -11,12 +11,12 @@
   <!-- t-shirt ivoire -->
   <path d="M160 298l40 56 40-56z" fill="#F5F0E6"/>
   <!-- salopette -->
-  <path d="M146 346h108l12 134H134z" fill="#164638"/>
-  <path d="M154 300l22 46M246 300l-22 46" stroke="#164638" stroke-width="20" stroke-linecap="round"/>
-  <circle cx="172" cy="350" r="7" fill="#D6A34D"/><circle cx="228" cy="350" r="7" fill="#D6A34D"/>
-  <rect x="172" y="392" width="56" height="44" rx="6" fill="none" stroke="#D6A34D" stroke-width="3" stroke-dasharray="6 5"/>
+  <path d="M146 346h108l12 134H134z" fill="#0B1640"/>
+  <path d="M154 300l22 46M246 300l-22 46" stroke="#0B1640" stroke-width="20" stroke-linecap="round"/>
+  <circle cx="172" cy="350" r="7" fill="#3DDC97"/><circle cx="228" cy="350" r="7" fill="#3DDC97"/>
+  <rect x="172" y="392" width="56" height="44" rx="6" fill="none" stroke="#3DDC97" stroke-width="3" stroke-dasharray="6 5"/>
   <!-- tournevis dans la poche -->
-  <rect x="181" y="372" width="9" height="30" rx="3" fill="#D6A34D"/><rect x="183.5" y="360" width="4" height="14" fill="#C9CFCB"/>
+  <rect x="181" y="372" width="9" height="30" rx="3" fill="#3DDC97"/><rect x="183.5" y="360" width="4" height="14" fill="#C9CFCB"/>
   <!-- oreilles -->
   <path d="M124 150L112 78q34-2 64 30z" fill="#252B28"/><path d="M126 138l-6-44q20 2 38 20z" fill="#3b2f26"/>
   <path d="M276 150l12-72q-34-2-64 30z" fill="#252B28"/><path d="M274 138l6-44q-20 2-38 20z" fill="#3b2f26"/>
@@ -24,21 +24,21 @@
   <path d="M116 192c0-72 40-104 84-104s84 32 84 104c0 62-36 98-84 98s-84-36-84-98z" fill="url(#fur)"/>
   <path d="M200 92c-10 20-10 40 0 58 10-18 10-38 0-58z" fill="#2c3330"/>
   <!-- crayon derriere l'oreille -->
-  <g transform="rotate(-24 118 124)"><rect x="100" y="96" width="12" height="62" rx="2" fill="#D6A34D"/><path d="M100 158h12l-6 14z" fill="#F5F0E6"/><path d="M103.5 165h5l-2.5 7z" fill="#252B28"/><rect x="100" y="96" width="12" height="9" rx="2" fill="#e8c27e"/></g>
+  <g transform="rotate(-24 118 124)"><rect x="100" y="96" width="12" height="62" rx="2" fill="#3DDC97"/><path d="M100 158h12l-6 14z" fill="#F5F0E6"/><path d="M103.5 165h5l-2.5 7z" fill="#252B28"/><rect x="100" y="96" width="12" height="9" rx="2" fill="#3DDC97"/></g>
   <!-- sourcils + yeux -->
   <path d="M142 176q30-18 52 4M258 176q-30-18-52 4" stroke="#0f1311" stroke-width="9" stroke-linecap="round" fill="none"/>
-  <path d="M146 192q24-20 46 2-22 14-46-2z" fill="#D6A34D"/><path d="M254 192q-24-20-46 2 22 14 46-2z" fill="#D6A34D"/>
+  <path d="M146 192q24-20 46 2-22 14-46-2z" fill="#3DDC97"/><path d="M254 192q-24-20-46 2 22 14 46-2z" fill="#3DDC97"/>
   <ellipse cx="170" cy="191" rx="4.5" ry="9" fill="#0f1311"/><ellipse cx="230" cy="191" rx="4.5" ry="9" fill="#0f1311"/>
   <circle cx="173" cy="187" r="2" fill="#F5F0E6"/><circle cx="233" cy="187" r="2" fill="#F5F0E6"/>
   <!-- museau -->
   <ellipse cx="200" cy="244" rx="46" ry="33" fill="#323a36"/>
-  <path d="M184 224q16-10 32 0-5 15-16 17-11-2-16-17z" fill="#B8863A"/>
+  <path d="M184 224q16-10 32 0-5 15-16 17-11-2-16-17z" fill="#3DDC97"/>
   <path d="M200 241v13M200 254q-12 12-28 4M200 254q12 12 28 4" stroke="#0f1311" stroke-width="3.5" stroke-linecap="round" fill="none"/>
   <path d="M168 240l-52-10M168 250l-50 8M232 240l52-10M232 250l50 8" stroke="#F5F0E6" stroke-width="2" stroke-linecap="round" opacity=".6"/>
   <!-- clé à molette -->
   <g transform="translate(336 352) rotate(16)">
     <g mask="url(#jaw)"><rect x="-13" y="-210" width="26" height="300" rx="12" fill="#C9CFCB" stroke="#0f1311" stroke-width="4"/><circle cx="0" cy="-224" r="40" fill="#C9CFCB" stroke="#0f1311" stroke-width="4"/></g>
-    <rect x="-5" y="-150" width="10" height="200" rx="5" fill="#D6A34D" opacity=".85"/>
+    <rect x="-5" y="-150" width="10" height="200" rx="5" fill="#3DDC97" opacity=".85"/>
     <circle cx="0" cy="0" r="32" fill="#252B28"/><path d="M-16 -8h32M-16 6h32" stroke="#3d4742" stroke-width="3"/>
   </g>
 </svg>

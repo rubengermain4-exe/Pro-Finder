@@ -44,26 +44,72 @@ export async function render({ root, navigate }) {
     <section class="hero" aria-labelledby="hero-title">
       <div class="container hero__inner">
         <div class="hero__copy">
-          <h1 id="hero-title">Le bon professionnel, au bon endroit.</h1>
-          <p class="lead">Plombier, frigoriste, électricien, mécanicien, nounou… Trouvez un prestataire près de chez vous partout au Gabon et contactez-le directement.</p>
+          <div class="hero__badge"><span class="flag-icon">🇬🇦</span> Plateforme professionnelle du Gabon</div>
+          <h1 id="hero-title">Trouvez le bon professionnel, <br/><span class="text-gradient">en toute confiance.</span></h1>
+          <p class="lead">Pro Finder vous connecte aux meilleurs professionnels près de chez vous. Simple, rapide et sécurisé.</p>
+
           <form class="search-card" id="hero-search" role="search" aria-label="Rechercher un professionnel">
-            <div class="sr-only"><label for="hs-q">Que cherchez-vous ?</label></div>
-            <input class="input" id="hs-q" name="q" type="search" placeholder="Ex. plombier, climatisation, nounou…" autocomplete="off" maxlength="80" />
-            <div class="sr-only"><label for="hs-cat">Catégorie</label></div>
-            <select class="select" id="hs-cat" name="cat">
-              <option value="">Catégories</option>
-              ${catOptions.map(({ top, kids }) => html`<optgroup label="${top.name}"><option value="${top.id}">Tout : ${top.name}</option>${kids.map((k) => html`<option value="${k.id}">${k.name}</option>`)}</optgroup>`)}
-            </select>
-            <div class="sr-only"><label for="hs-loc">Province</label></div>
-            <select class="select" id="hs-loc" name="loc">
-              <option value="">Tout le pays</option>
-              ${provinces.map((p) => html`<option value="${p.id}">${p.name}</option>`)}
-            </select>
-            <button class="btn btn--gold" type="submit">${icon('search', 20)} Rechercher</button>
+            <div class="search-field">
+              ${icon('search', 20)}
+              <input class="input-clean" id="hs-q" name="q" type="search" placeholder="Quel service recherchez-vous ?" autocomplete="off" maxlength="80" />
+            </div>
+            <div class="search-divider"></div>
+            <div class="search-field select-field">
+              ${icon('mapPin', 18)}
+              <select class="select-clean" id="hs-loc" name="loc">
+                <option value="">Libreville</option>
+                ${provinces.map((p) => html`<option value="${p.id}">${p.name}</option>`)}
+              </select>
+            </div>
+            <button class="btn btn--emerald" type="submit">Rechercher ${icon('arrowRight', 18)}</button>
           </form>
-          ${tops.length ? html`<div class="chips" aria-label="Catégories fréquentes">${tops.slice(0, 5).map((c) => html`<a class="chip" href="/annuaire${buildQuery({ cat: c.id })}">${icon(c.icon, 16)} ${c.name}</a>`)}</div>` : ''}
+
+          ${tops.length ? html`<div class="chips-row"><span class="chips-label">Suggestions populaires :</span> ${tops.slice(0, 5).map((c) => html`<a class="chip" href="/annuaire${buildQuery({ cat: c.id })}">${c.name}</a>`)}</div>` : ''}
         </div>
-        <div class="hero__art" aria-hidden="true"><div class="hero__arch"><img src="/assets/mascot.svg" alt="" width="360" height="430" /></div></div>
+
+        <div class="hero__art" aria-hidden="true">
+          <div class="hero__panther">
+            <img src="/assets/mascot.svg" alt="Panthère Pro Finder" width="480" height="520" />
+            <div class="hero__art-tagline">
+              <strong>Pro Finder</strong>
+              <span>Plus proche de vous au <strong>Gabon</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trust Bar -->
+      <div class="container">
+        <div class="trust-bar">
+          <div class="trust-item">
+            <div class="trust-icon trust-icon--green">${icon('checkBadge', 22)}</div>
+            <div>
+              <strong>Profils vérifiés</strong>
+              <span>Des professionnels de confiance</span>
+            </div>
+          </div>
+          <div class="trust-item">
+            <div class="trust-icon trust-icon--bolt">${icon('zap', 22)}</div>
+            <div>
+              <strong>Réponse rapide</strong>
+              <span>Trouvez en quelques clics</span>
+            </div>
+          </div>
+          <div class="trust-item">
+            <div class="trust-icon trust-icon--headset">${icon('phone', 22)}</div>
+            <div>
+              <strong>Assistance 24/7</strong>
+              <span>Nous sommes là pour vous</span>
+            </div>
+          </div>
+          <div class="trust-item">
+            <div class="trust-icon trust-icon--flag">${icon('shieldCheck', 22)}</div>
+            <div>
+              <strong>100% Gabonais</strong>
+              <span>Soutien à notre communauté</span>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
     <div class="weave" aria-hidden="true"></div>
