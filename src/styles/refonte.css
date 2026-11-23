@@ -49,7 +49,7 @@ body { background:#fff; color:var(--charcoal); }
 .nav__toggle { border-color:var(--line); }
 
 /* Hero — composition éditoriale */
-.hero { position:relative; z-index:2; isolation:isolate; padding:0 0 1px; color:#fff; background:radial-gradient(ellipse at 77% 18%,rgba(47,111,161,.34),transparent 38%),linear-gradient(116deg,#07112F 0%,#0B1640 48%,#102D4A 100%); }
+.hero { isolation:isolate; padding:0 0 1px; color:#fff; background:radial-gradient(ellipse at 77% 18%,rgba(47,111,161,.34),transparent 38%),linear-gradient(116deg,#07112F 0%,#0B1640 48%,#102D4A 100%); }
 .hero::before { z-index:-1; opacity:.55; background:radial-gradient(circle at 9% 90%,rgba(61,220,151,.15),transparent 25%),linear-gradient(125deg,transparent 52%,rgba(255,255,255,.055) 52.1%,transparent 72%); }
 .hero::after { content:""; position:absolute; width:540px; height:540px; border:1px solid rgba(255,255,255,.09); border-radius:50%; right:4%; top:3%; box-shadow:0 0 0 55px rgba(255,255,255,.018),0 0 0 110px rgba(255,255,255,.014); pointer-events:none; }
 .hero__inner { max-width:1450px; min-height:600px; grid-template-columns:minmax(0,1.08fr) minmax(380px,.92fr); gap:20px; align-items:center; padding-top:65px; padding-bottom:24px; }
