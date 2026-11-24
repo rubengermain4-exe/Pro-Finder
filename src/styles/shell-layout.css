@@ -1,0 +1,195 @@
+/* ============================================================
+   PRO FINDER — RESTAURATION DES STRUCTURES DU SITE
+   Ce fichier complète les règles visuelles existantes sans
+   modifier les styles de la vitrine professionnelle.
+   ============================================================ */
+
+/* En-tête et navigation */
+.site-header {
+  position: relative;
+  z-index: 200;
+  width: 100%;
+}
+.site-header__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 82px;
+  gap: 24px;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 11px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.brand img {
+  display: block;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+.brand span { display: inline-block; }
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-left: auto;
+}
+.nav a,
+.nav button.nav__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+}
+.nav__toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--line, #E5EAF2);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--forest, #0B1640);
+}
+.user-menu {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.user-menu > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.user-menu__panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 220;
+  display: none;
+  min-width: 230px;
+  padding: 8px;
+  border: 1px solid var(--line, #E5EAF2);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 18px 42px rgba(11,22,64,.16);
+}
+.user-menu[data-open='true'] .user-menu__panel { display: grid; gap: 3px; }
+.user-menu__panel a,
+.user-menu__panel button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 11px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--charcoal, #202735);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.user-menu__panel a:hover,
+.user-menu__panel button:hover { background: #F2F6FA; color: var(--forest, #0B1640); }
+.badge-dot { display: inline-grid; place-items: center; min-width: 19px; height: 19px; padding: 0 5px; border-radius: 999px; background: var(--gold, #3DDC97); color: #10251d; font-size: 11px; font-weight: 800; }
+
+/* Accueil : grilles dont les colonnes sont définies dans refonte.css */
+.hero { position: relative; overflow: hidden; }
+.hero__inner { display: grid; }
+.trust-bar { display: grid; }
+.trust-item { display: flex; align-items: center; gap: 13px; min-width: 0; }
+.trust-item > div:last-child { display: grid; gap: 3px; min-width: 0; }
+.trust-item strong,
+.trust-item span { display: block; }
+.cat-grid { display: grid; }
+.biz-grid { display: grid; }
+.pillars,
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.recent-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.recent-item { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.recent-item > span { display: grid; min-width: 0; }
+.recent-item small { color: var(--muted, #65718A); }
+
+/* Pied de page */
+.site-footer { width: 100%; }
+.footer__grid {
+  display: grid;
+  grid-template-columns: minmax(240px, 1.6fr) repeat(3, minmax(140px, 1fr));
+  align-items: start;
+  gap: 36px;
+}
+.footer__grid > div { min-width: 0; }
+.footer__grid > div:first-child .brand { margin-bottom: 4px; }
+.footer__grid ul { margin: 0; padding: 0; list-style: none; }
+.footer__grid li + li { margin-top: 7px; }
+.footer__grid a { text-decoration: underline; text-underline-offset: 3px; }
+.footer__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  padding-block: 18px 24px;
+  border-top: 1px solid rgba(255,255,255,.12);
+}
+
+/* Tablettes et téléphones */
+@media (max-width: 860px) {
+  .site-header__bar { position: relative; min-height: 72px; flex-wrap: wrap; gap: 12px; }
+  .nav__toggle { display: inline-flex; margin-left: auto; }
+  .nav {
+    position: absolute;
+    top: calc(100% - 1px);
+    left: 0;
+    right: 0;
+    z-index: 210;
+    display: none;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 5px;
+    margin: 0;
+    padding: 12px;
+    border: 1px solid var(--line, #E5EAF2);
+    border-radius: 0 0 16px 16px;
+    background: #fff;
+    box-shadow: 0 18px 32px rgba(11,22,64,.10);
+  }
+  .nav[data-open='true'] { display: flex; }
+  .nav > a { justify-content: flex-start; width: 100%; }
+  .user-menu { display: block; width: 100%; }
+  .user-menu > button { justify-content: flex-start; width: 100%; }
+  .user-menu__panel {
+    position: static;
+    min-width: 0;
+    margin-top: 6px;
+    box-shadow: none;
+    background: #F8FAFC;
+  }
+  .hero__inner { grid-template-columns: minmax(0, 1fr); }
+  .trust-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pillars, .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .footer__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .footer__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px 18px; }
+  .footer__grid > div:first-child { grid-column: 1 / -1; }
+  .footer__bottom { align-items: flex-start; flex-direction: column; }
+  .trust-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pillars, .steps { grid-template-columns: minmax(0, 1fr); }
+}
