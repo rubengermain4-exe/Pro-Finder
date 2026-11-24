@@ -35,6 +35,14 @@ const REASONS = [
   { value: 'metier_sensible', label: 'Métier réglementé sans justificatif' }, { value: 'autre', label: 'Autre' },
 ];
 
+const contrastFor = (hex) => {
+  const m = /^#([0-9a-f]{6})$/i.exec(hex || '');
+  if (!m) return '#FFFFFF';
+  const n = parseInt(m[1], 16);
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  return (0.2126 * r + 0.7152 * g + 0.0722 * b) > 150 ? '#0B1640' : '#FFFFFF';
+};
+
 const price = (s) => {
   if (s.price_from != null && s.price_to != null) return `${formatXAF(s.price_from)} – ${formatXAF(s.price_to)}`;
   if (s.price_from != null) return `À partir de ${formatXAF(s.price_from)}`;
@@ -64,13 +72,20 @@ export async function render({ root, params, navigate }) {
   const hasHours = DAYS.some(([k]) => av[k]);
   const status = hasHours ? openStatus(av) : null;
   const logoUrl = b.logo_path ? publicUrl('business-media', b.logo_path) : '';
+  const coverUrl = b.cover_path ? publicUrl('business-media', b.cover_path) : '';
+  const brandPrimary = /^#[0-9a-f]{6}$/i.test(b.brand_primary_color || '') ? b.brand_primary_color : '#0B1640';
+  const brandAccent = /^#[0-9a-f]{6}$/i.test(b.brand_accent_color || '') ? b.brand_accent_color : '#3DDC97';
+  const onPrimary = contrastFor(brandPrimary);
+  const onAccent = contrastFor(brandAccent);
+  const galleryImages = [...extras.images].sort((a, c) => Number(Boolean(c.is_featured)) - Number(Boolean(a.is_featured)));
+  const socials = Object.entries(b.social_links || {}).map(([key, value]) => ({ key, url: safeUrl(value), label: ({ facebook: 'Facebook', instagram: 'Instagram', tiktok: 'TikTok', linkedin: 'LinkedIn', youtube: 'YouTube' })[key] || key })).filter((x) => x.url);
   if (isPublic) {
     setSeo({
       title: `${b.name}${b.category ? ` · ${b.category.name}` : ''}${place ? ` à ${place}` : ''} · Pro Finder`,
       description: b.tagline || b.description || `${b.name} sur Pro Finder, l'annuaire des professionnels du Gabon.`,
-      image: logoUrl, type: 'profile',
+      image: coverUrl || logoUrl, type: 'profile',
     });
-    setJsonLd(localBusinessLd(b, extras, place, logoUrl, hasHours, av));
+    setJsonLd(localBusinessLd(b, extras, place, coverUrl || logoUrl, hasHours, av));
     if (!isOwner) addRecent({ slug: b.slug, kind: b.kind, name: b.name, tagline: b.tagline || '', category_name: b.category?.name || '', location_name: place, logo_path: b.logo_path || '' });
   }
 
@@ -80,38 +95,50 @@ export async function render({ root, params, navigate }) {
     <a class="btn btn--gold ${cls}" href="/messages/nouveau/${b.id}">${icon('message', 20)} Message</a>`;
 
   setHtml(root, html`
-    <div class="profile-page">
-      <section class="profile-head">
-        <div class="container profile-head__grid">
-          ${avatar(b.name, b.logo_path, 'business-media', true)}
-          <div style="flex:1;min-width:220px">
-            <h1>${b.name}</h1>
-            ${b.tagline ? html`<p style="color:#d8e4dc;margin:0 0 8px">${b.tagline}</p>` : ''}
-            <div class="meta">
-              ${b.category ? html`<span>${icon('tool', 16)} ${b.category.name}</span>` : ''}
-              ${place ? html`<span>${icon('pin', 16)} ${place}</span>` : ''}
-              ${extras.stats.review_count > 0 ? html`<span>${stars(extras.stats.avg_rating, 15)} ${Number(extras.stats.avg_rating).toFixed(1)} (${extras.stats.review_count} avis)</span>` : html`<span>Pas encore d'avis</span>`}
-              ${b.kind === 'entreprise' ? html`<span>${icon('home', 16)} Entreprise</span>` : ''}
-              ${status ? html`<span class="open-badge open-badge--${status.state}">${status.label}</span>` : ''}
+    <div class="profile-page" style="--profile-primary:${brandPrimary};--profile-accent:${brandAccent};--profile-on-primary:${onPrimary};--profile-on-accent:${onAccent}">
+      <section class="profile-showcase">
+        <div class="profile-showcase__cover">
+          ${coverUrl ? html`<img class="profile-showcase__cover-image" src="${coverUrl}" alt="Couverture de ${b.name}" />` : ''}
+          <div class="profile-showcase__shade"></div>
+          <div class="container profile-showcase__inner">
+            <div class="profile-showcase__identity">
+              ${avatar(b.name, b.logo_path, 'business-media', true)}
+              <div class="profile-showcase__copy">
+                <h1>${b.name}</h1>
+                ${b.tagline ? html`<p class="profile-showcase__tagline">${b.tagline}</p>` : ''}
+                <div class="meta">
+                  ${b.category ? html`<span>${icon('tool', 16)} ${b.category.name}</span>` : ''}
+                  ${place ? html`<span>${icon('pin', 16)} ${place}</span>` : ''}
+                  ${extras.stats.review_count > 0 ? html`<span>${stars(extras.stats.avg_rating, 15)} ${Number(extras.stats.avg_rating).toFixed(1)} (${extras.stats.review_count} avis)</span>` : html`<span>Pas encore d'avis</span>`}
+                  ${b.kind === 'entreprise' ? html`<span>${icon('home', 16)} Entreprise</span>` : ''}
+                  ${status ? html`<span class="open-badge open-badge--${status.state}">${status.label}</span>` : ''}
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="row">
-            <button class="btn btn--light btn--sm" id="share" type="button">${icon('share', 18)} <span>Partager</span></button>
-            ${isOwner ? '' : html`<button class="btn btn--light btn--sm" id="fav" type="button" aria-pressed="${fav}">${icon('heart', 18, { filled: fav })} <span>${fav ? 'Favori' : 'Ajouter aux favoris'}</span></button>`}
+            <div class="profile-showcase__actions">
+              <button class="btn btn--light btn--sm" id="share" type="button">${icon('share', 18)} <span>Partager</span></button>
+              ${isOwner ? '' : html`<button class="btn btn--light btn--sm" id="fav" type="button" aria-pressed="${fav}">${icon('heart', 18, { filled: fav })} <span>${fav ? 'Favori' : 'Ajouter aux favoris'}</span></button>`}
+            </div>
           </div>
         </div>
       </section>
-      <div class="container section--tight">
-        ${isOwner ? html`<div class="alert alert--info">Ceci est l'aperçu de votre fiche. Statut : ${businessStatusBadge(b.status)} ${!isPublic ? html`— elle n'est pas visible du public (validation ou abonnement requis). <a href="/espace-pro">Gérer ma fiche</a>` : ''}</div>` : ''}
+      <div class="container section--tight profile-content">
+        ${isOwner ? html`<div class="alert alert--info">Aperçu de votre vitrine · Statut : ${businessStatusBadge(b.status)} ${!isPublic ? html`— elle n'est pas encore visible du public (validation ou abonnement requis). <a href="/espace-pro/vitrine">Personnaliser ma vitrine</a>` : ''}</div>` : ''}
         ${b.category?.is_sensitive ? html`<div class="alert alert--warn" role="note"><strong>Métier sensible.</strong> Demandez les références et justificatifs du professionnel avant toute prestation. Pro Finder ne vérifie pas les diplômes.</div>` : ''}
-        <div class="profile">
-          <div>
-            <section class="panel"><h2>Présentation</h2><p style="white-space:pre-line">${b.description || 'Aucune description.'}</p></section>
-            <section class="panel"><h2>Prestations</h2>
-              ${extras.services.length ? html`<ul class="service-list">${extras.services.map((s) => html`<li><div><strong>${s.title}</strong>${s.description ? html`<p class="muted small" style="margin:2px 0 0">${s.description}</p>` : ''}</div><span class="price">${price(s)}</span></li>`)}</ul>` : html`<p class="muted">Aucune prestation détaillée. Contactez le professionnel pour un devis.</p>`}
+        <div class="profile profile--showcase">
+          <div class="profile-main">
+            ${galleryImages.length ? html`<section class="panel showcase-public-gallery"><div class="section-heading"><div><span class="eyebrow">En images</span><h2>Nos réalisations & produits</h2></div><span class="small muted">${galleryImages.length} photo${galleryImages.length > 1 ? 's' : ''}</span></div>
+              <div class="showcase-public-gallery__grid">
+                <button class="showcase-public-gallery__featured" type="button" data-img="0" aria-label="Agrandir l'image principale"><img src="${galleryImages[0].url}" alt="${galleryImages[0].caption || `Image principale de ${b.name}`}" loading="lazy" />${galleryImages[0].caption ? html`<span>${galleryImages[0].caption}</span>` : ''}</button>
+                ${galleryImages.length > 1 ? html`<div class="showcase-public-gallery__thumbs">${galleryImages.slice(1).map((i, n) => html`<button type="button" data-img="${n + 1}" aria-label="Agrandir l'image ${n + 2}"><img src="${i.url}" alt="${i.caption || `Photo ${n + 2} de ${b.name}`}" loading="lazy" /></button>`)}</div>` : ''}
+              </div>
+            </section>` : ''}
+            <section class="panel showcase-about"><span class="eyebrow">Qui sommes-nous ?</span><h2>Présentation</h2><p style="white-space:pre-line">${b.description || 'Aucune présentation détaillée pour le moment.'}</p></section>
+            <section class="panel showcase-catalog"><div class="section-heading"><div><span class="eyebrow">Notre offre</span><h2>Prestations & produits</h2></div></div>
+              ${extras.services.length ? html`<div class="showcase-catalog__grid">${extras.services.map((item) => html`<article class="showcase-catalog-card"><span class="showcase-catalog-card__type">${item.item_type === 'product' ? 'Produit' : 'Prestation'}</span><h3>${item.title}</h3>${item.description ? html`<p>${item.description}</p>` : ''}<strong>${price(item)}</strong></article>`)}</div>` : html`<p class="muted">Aucun produit ou service détaillé pour le moment. Contactez le professionnel pour en savoir plus.</p>`}
             </section>
-            ${extras.images.length ? html`<section class="panel"><h2>Réalisations</h2><div class="gallery">${extras.images.map((i, n) => html`<button type="button" data-img="${n}" aria-label="Agrandir l'image ${n + 1}"><img src="${i.url}" alt="${i.caption || `Réalisation de ${b.name}`}" loading="lazy" /></button>`)}</div></section>` : ''}
-            <section class="panel" id="avis"><h2>Avis (${extras.stats.review_count})</h2>
+            ${hasHours ? html`<section class="panel"><h2>Disponibilités</h2><table class="hours"><tbody>${DAYS.map(([k, l]) => html`<tr><td>${l}</td><td>${av[k]?.open ? `${av[k].from} – ${av[k].to}` : 'Fermé'}</td></tr>`)}</tbody></table>${av.note ? html`<p class="small muted" style="margin:6px 0 0">${av.note}</p>` : ''}</section>` : ''}
+            <section class="panel" id="avis"><div class="section-heading"><div><span class="eyebrow">Expériences clients</span><h2>Avis clients (${extras.stats.review_count})</h2></div>${extras.stats.review_count ? html`<strong class="showcase-rating">${Number(extras.stats.avg_rating).toFixed(1)} / 5</strong>` : ''}</div>
               ${extras.reviews.length ? extras.reviews.map((r) => html`<article class="review"><div class="row row--between"><strong>${r.author_name}</strong><span class="small muted">${formatDate(r.created_at)}</span></div>${stars(r.rating, 15)}${r.comment ? html`<p style="margin:6px 0 0">${r.comment}</p>` : ''}</article>`) : html`<p class="muted">Aucun avis pour le moment. Les avis sont déposés uniquement par des clients ayant échangé avec le professionnel.</p>`}
               ${canReview ? html`<form id="review-form" class="stack" style="margin-top:18px" novalidate>
                 <h3>Donner votre avis</h3>
@@ -120,16 +147,16 @@ export async function render({ root, params, navigate }) {
                 <button class="btn" type="submit">Publier mon avis</button></form>` : ''}
             </section>
           </div>
-          <aside>
+          <aside class="profile-aside">
             <div class="panel contact-box">
-              <h2 style="margin:0">Contacter</h2>
+              <span class="eyebrow">Parlons de votre projet</span><h2 style="margin:0">Contacter</h2>
               ${isPublic || isOwner ? contactButtons('btn--block') : html`<p class="muted">Ce professionnel n'est pas joignable actuellement.</p>`}
               <hr style="border:0;border-top:1px solid var(--line);width:100%" />
               ${b.address ? html`<div class="small">${icon('pin', 16)} ${b.address}</div>` : ''}
               ${b.email ? html`<div class="small">${icon('mail', 16)} <a href="mailto:${b.email}">${b.email}</a></div>` : ''}
               ${safeUrl(b.website) ? html`<div class="small">${icon('globe', 16)} <a href="${safeUrl(b.website)}" target="_blank" rel="noopener noreferrer nofollow">Site web</a></div>` : ''}
-              ${hasHours ? html`<h3 style="margin:10px 0 0">Disponibilités</h3><table class="hours"><tbody>${DAYS.map(([k, l]) => html`<tr><td>${l}</td><td>${av[k]?.open ? `${av[k].from} – ${av[k].to}` : 'Fermé'}</td></tr>`)}</tbody></table>${av.note ? html`<p class="small muted" style="margin:6px 0 0">${av.note}</p>` : ''}` : ''}
-              ${isOwner ? '' : html`<button class="link-btn small" id="report" type="button">${icon('flag', 14)} Signaler cette fiche</button>`}
+              ${socials.length ? html`<div class="showcase-socials"><h3>Retrouvez-nous</h3><div>${socials.map((social) => html`<a href="${social.url}" target="_blank" rel="noopener noreferrer nofollow">${social.label}</a>`)}</div></div>` : ''}
+              ${isOwner ? html`<a class="btn btn--ghost btn--block" href="/espace-pro/vitrine">${icon('palette',16)} Personnaliser ma vitrine</a>` : html`<button class="link-btn small" id="report" type="button">${icon('flag',14)} Signaler cette fiche</button>`}
             </div>
           </aside>
         </div>
@@ -140,7 +167,7 @@ export async function render({ root, params, navigate }) {
   const offs = [];
   offs.push(on(root, 'click', '[data-track]', (e, el) => trackEvent(b.id, el.dataset.track)));
   offs.push(on(root, 'click', '[data-img]', (e, el) => {
-    const imgs = extras.images; let i = Number(el.dataset.img);
+    const imgs = galleryImages; let i = Number(el.dataset.img);
     const box = document.createElement('div'); box.className = 'lightbox'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', 'Image agrandie');
     const draw = () => { box.innerHTML = ''; const im = document.createElement('img'); im.src = imgs[i].url; im.alt = imgs[i].caption || b.name; const c = document.createElement('button'); c.className = 'btn btn--light btn--sm'; c.textContent = 'Fermer'; c.onclick = () => box.remove(); box.append(im, c); };
     draw(); box.addEventListener('click', (ev) => { if (ev.target === box) box.remove(); });

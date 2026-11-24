@@ -68,3 +68,8 @@ tests/, scripts/check.mjs        tests et vérifications
 ## Sécurité (résumé)
 
 RLS sur toutes les tables · colonnes sensibles protégées par triggers (rôle, statut, abonnement) · rôle admin impossible à l'inscription · paiements et abonnements écrits uniquement par fonctions `security definer` · conversations visibles par leurs seuls participants (admins inclus exclus) · images validées par signature + limites serveur du bucket · échappement HTML systématique · CSP stricte (`public/_headers`) · redirections internes uniquement · journal d'audit des actions admin · clé `service_role` jamais dans le frontend.
+
+
+## Vitrines professionnelles personnalisables
+
+Voir [docs/VITRINES-PROFESSIONNELLES.md](docs/VITRINES-PROFESSIONNELLES.md) pour les fonctionnalités, la migration Supabase 0007 et les étapes de déploiement.

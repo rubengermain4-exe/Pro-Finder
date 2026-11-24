@@ -11,6 +11,8 @@ export async function getMyBusiness() {
 }
 
 const FIELDS = ['kind', 'name', 'tagline', 'description', 'category_id', 'location_id', 'address', 'phone', 'whatsapp', 'email', 'website'];
+const SOCIAL_KEYS = ['facebook', 'instagram', 'tiktok', 'linkedin', 'youtube'];
+const cleanSocialLinks = (values = {}) => Object.fromEntries(SOCIAL_KEYS.map((key) => [key, String(values[key] || '').trim()]).filter(([, value]) => value));
 
 export async function saveBusiness(existing, values) {
   const payload = {};
@@ -25,6 +27,26 @@ export async function saveAvailability(businessId, availability) {
   must(await supabase.from('businesses').update({ availability }).eq('id', businessId));
 }
 
+export async function saveShowcaseSettings(businessId, values) {
+  const hex = (value, fallback) => /^#[0-9a-f]{6}$/i.test(value || '') ? value : fallback;
+  const social_links = cleanSocialLinks(values.social_links);
+  must(await supabase.from('businesses').update({
+    brand_primary_color: hex(values.brand_primary_color, '#0B1640'),
+    brand_accent_color: hex(values.brand_accent_color, '#3DDC97'),
+    social_links,
+  }).eq('id', businessId));
+}
+
+export async function uploadCover(businessId, file) {
+  const check = await validateImageFile(file);
+  if (!check.ok) throw new Error(check.error);
+  const path = `${uid()}/cover-${Date.now()}.${check.ext}`;
+  must(await supabase.storage.from('business-media').upload(path, file, { contentType: check.type }));
+  const { error } = await supabase.from('businesses').update({ cover_path: path }).eq('id', businessId);
+  if (error) { await supabase.storage.from('business-media').remove([path]); throw error; }
+  return publicUrl('business-media', path);
+}
+
 export async function uploadLogo(businessId, file) {
   const check = await validateImageFile(file);
   if (!check.ok) throw new Error(check.error);
@@ -36,11 +58,11 @@ export async function uploadLogo(businessId, file) {
 
 // --- Prestations ---
 export async function listServices(businessId) {
-  return must(await supabase.from('services').select('*').eq('business_id', businessId).order('sort_order').order('created_at'));
+  return must(await supabase.from('services').select('*').eq('business_id', businessId).order('item_type').order('sort_order').order('created_at'));
 }
 const toInt = (v) => (v === '' || v == null ? null : Number(v));
 export async function saveService(businessId, values, id = null) {
-  const row = { business_id: businessId, title: values.title, description: values.description || null, price_from: toInt(values.price_from), price_to: toInt(values.price_to) };
+  const row = { business_id: businessId, item_type: values.item_type === 'product' ? 'product' : 'service', title: values.title, description: values.description || null, price_from: toInt(values.price_from), price_to: toInt(values.price_to) };
   if (id) must(await supabase.from('services').update(row).eq('id', id));
   else must(await supabase.from('services').insert(row));
 }
@@ -52,6 +74,8 @@ export async function listImages(businessId) {
   return rows.map((r) => ({ ...r, url: publicUrl('business-media', r.path) }));
 }
 export async function addImage(businessId, file, caption) {
+  const existing = await listImages(businessId);
+  if (existing.length >= 10) throw new Error('La galerie est limitée à 10 images.');
   const check = await validateImageFile(file);
   if (!check.ok) throw new Error(check.error);
   const path = `${uid()}/${crypto.randomUUID()}.${check.ext}`;
@@ -59,9 +83,16 @@ export async function addImage(businessId, file, caption) {
   const { error } = await supabase.from('portfolio_images').insert({ business_id: businessId, path, caption: caption || null });
   if (error) { await supabase.storage.from('business-media').remove([path]); throw error; }
 }
+export async function setFeaturedImage(image) {
+  must(await supabase.from('portfolio_images').update({ is_featured: true }).eq('id', image.id).eq('business_id', image.business_id));
+}
 export async function deleteImage(image) {
   must(await supabase.from('portfolio_images').delete().eq('id', image.id));
   await supabase.storage.from('business-media').remove([image.path]);
+  if (image.is_featured) {
+    const remaining = await listImages(image.business_id);
+    if (remaining.length) await setFeaturedImage(remaining[0]);
+  }
 }
 
 // --- Statistiques / abonnement ---
